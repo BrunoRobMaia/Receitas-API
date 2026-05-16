@@ -15,7 +15,7 @@
 
 O **Receitas API** é uma API RESTful completa para gerenciamento de receitas culinárias, desenvolvida com foco em performance, organização e escalabilidade.
 
-O sistema oferece cadastro e autenticação de usuários com JWT, gerenciamento de categorias e receitas, e geração de PDFs prontos para impressão — tudo documentado automaticamente via Swagger.
+O sistema oferece cadastro e autenticação de usuários com JWT, gereciamento de receitas e geração de PDFs prontos para impressão — tudo documentado automaticamente via Swagger.
 
 **Pilares técnicos:**
 
@@ -67,14 +67,14 @@ cp .env.local .env
 
 ## 🐳 Opção 1 — Docker (Recomendado)
 
+Antes de subir os containers, configure as credenciais do banco no `docker-compose.yml` e no `.env` (veja [⚙️ Configuração](#️-configuração)).
+
 ```bash
 # Sobe os containers
 pnpm docker:up
 
-# Se a migration não foi aplicada automaticamente
+# Se a migration não foi aplicada automaticamente, entre no container e rode:
 pnpm docker:sh
-
-# Depois rode o comando
 pnpm prisma:migrate
 
 # Popula as categorias iniciais
@@ -97,10 +97,7 @@ pnpm test
 # 1. Instale as dependências (caso ainda não tenha feito)
 pnpm install
 
-# 2. Configure o .env com suas credenciais
-# Exemplo:
-# DATABASE_URL="mysql://root:password@localhost:3306/receitas"
-# JWT_SECRET="sua_chave_secreta" (crie uma chave)
+# 2. Configure o .env com suas credenciais (veja ⚙️ Configuração abaixo)
 
 # 3. Execute as migrations
 pnpm prisma:migrate
@@ -122,7 +119,6 @@ pnpm dev
 ```bash
 # Unitários e E2E
 pnpm test
-
 ```
 
 ---
@@ -137,10 +133,82 @@ http://localhost:3000/docs
 
 ---
 
-## ⚙️ Variáveis de Ambiente
+## ⚙️ Configuração
+
+### 1. Variáveis de Ambiente (`.env`)
 
 Copie o arquivo de exemplo e preencha com suas credenciais:
 
 ```bash
 cp .env.local .env
 ```
+
+#### Aplicação
+
+| Variável     | Descrição                                | Padrão |
+| ------------ | ---------------------------------------- | ------ |
+| `PORT`       | Porta em que o servidor irá rodar        | `3000` |
+| `JWT_SECRET` | Chave secreta para assinar os tokens JWT | —      |
+
+#### Banco de Dados (MySQL)
+
+| Variável       | Descrição                           | Exemplo                                |
+| -------------- | ----------------------------------- | -------------------------------------- |
+| `DB_HOST`      | Host do banco de dados              | `localhost`                            |
+| `DB_PORT`      | Porta do MySQL                      | `3306`                                 |
+| `DB_USER`      | Usuário do banco                    | `root`                                 |
+| `DB_PASSWORD`  | Senha do banco                      | `senha123`                             |
+| `DB_NAME`      | Nome do banco de dados              | `receitas`                             |
+| `DATABASE_URL` | String de conexão usada pelo Prisma | `mysql://user:pass@host:3306/receitas` |
+
+> ⚠️ `DATABASE_URL` deve estar sempre consistente com as demais variáveis `DB_*`. O Prisma usa exclusivamente essa string para se conectar.
+
+```dotenv
+# Exemplo de .env preenchido
+PORT=3000
+JWT_SECRET=troque_por_uma_chave_forte_e_aleatoria
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=receitas
+
+DATABASE_URL="mysql://seu_usuario:sua_senha@localhost:3306/receitas"
+```
+
+---
+
+### 2. Docker Compose (`docker-compose.yml`)
+
+Ao usar Docker, as credenciais do banco também precisam ser definidas diretamente no `docker-compose.yml`. Localize os campos marcados e substitua pelos seus valores antes de rodar `pnpm docker:up`:
+
+```yaml
+services:
+  api:
+    environment:
+      DATABASE_URL: mysql://<SEU_USUARIO>:<SUA_SENHA>@mysql:3306/receitas # ← edite aqui
+      DB_USER: <SEU_USUARIO> # ← edite aqui
+      DB_PASSWORD: <SUA_SENHA> # ← edite aqui
+      JWT_SECRET: ${JWT_SECRET} # lido automaticamente do .env
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: <SUA_SENHA> # ← edite aqui (deve ser igual à acima)
+      MYSQL_DATABASE: receitas
+
+  mysql_test:
+    environment:
+      MYSQL_ROOT_PASSWORD: <SUA_SENHA> # ← edite aqui
+      MYSQL_DATABASE: receitas_test
+```
+
+> 💡 **Portas expostas pelos containers:**
+>
+> | Container             | Porta interna | Porta no host |
+> | --------------------- | ------------- | ------------- |
+> | `receitas-api`        | `3000`        | `3000`        |
+> | `receitas-mysql`      | `3306`        | `3307`        |
+> | `receitas-mysql-test` | `3306`        | `3308`        |
+>
+> O MySQL de produção fica na porta `3307` e o de testes na `3308` para evitar conflito com uma instalação local do MySQL.
