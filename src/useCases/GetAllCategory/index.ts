@@ -1,0 +1,1 @@
+export { GetAllCategoryController } from "./GetAllCategoryController";

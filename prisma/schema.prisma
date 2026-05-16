@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Usuario {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  nome        String?   @db.VarChar(100)
+  login       String    @unique @db.VarChar(100)
+  senha       String    @db.VarChar(100)
+  criado_em   DateTime  @default(now())
+  alterado_em DateTime  @updatedAt
+  receitas    Receita[]
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  nome     String?   @unique @db.VarChar(100)
+  receitas Receita[]
+
+  @@map("categorias")
+}
+
+model Receita {
+  id                    Int        @id @default(autoincrement()) @db.UnsignedInt
+  id_usuarios           Int        @db.UnsignedInt
+  id_categorias         Int?       @db.UnsignedInt
+  nome                  String?    @db.VarChar(45)
+  tempo_preparo_minutos Int?       @db.UnsignedInt
+  porcoes               Int?       @db.UnsignedInt
+  modo_preparo          String     @db.Text
+  ingredientes          String?    @db.Text
+  criado_em             DateTime   @default(now())
+  alterado_em           DateTime   @updatedAt
+  usuario               Usuario    @relation(fields: [id_usuarios], references: [id], onUpdate: Cascade)
+  categoria             Categoria? @relation(fields: [id_categorias], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("receitas")
+}

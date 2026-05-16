@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: receitas-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://seu_usuario_mysql:sua_senha_mysql@mysql:3306/receitas
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: seu_usuario_mysql
+      DB_PASSWORD: sua_senha_mysql
+      DB_NAME: receitas
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3000
+    command: sh -c "pnpm prisma migrate deploy && node dist/src/server.js"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: receitas-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sua_senha_mysql
+      MYSQL_DATABASE: receitas
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mysql_test:
+    image: mysql:8.0
+    container_name: receitas-mysql-test
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sua_senha_mysql
+      MYSQL_DATABASE: receitas_test
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  mysql_test_data:
