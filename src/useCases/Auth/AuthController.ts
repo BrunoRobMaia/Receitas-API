@@ -24,6 +24,13 @@ export async function AuthController(app: FastifyInstance) {
             properties: {
               message: { type: "string" },
               token: { type: "string" },
+              usuario: {
+                type: "object",
+                properties: {
+                  nome: { type: "string" },
+                  login: { type: "string" },
+                },
+              },
             },
           },
         },

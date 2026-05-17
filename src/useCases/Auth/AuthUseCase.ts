@@ -27,6 +27,10 @@ export class AuthUseCase {
 
     return {
       message: "Login realizado com sucesso!",
+      usuario: {
+        nome: user.nome,
+        login: user.login,
+      },
       token,
     };
   }
