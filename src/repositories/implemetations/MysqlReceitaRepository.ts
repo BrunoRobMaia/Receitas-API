@@ -3,9 +3,20 @@ import { prisma } from "../../lib/prisma";
 import { ReceitaRepository } from "../ReceitaRepository";
 
 export class MysqlReceitaRepository implements ReceitaRepository {
-  async findByUser(id_usuarios: number): Promise<Receita[]> {
+  async findByUser(
+    id_usuarios: number,
+    filters?: { nome?: string; id_categorias?: number },
+  ): Promise<Receita[]> {
     return prisma.receita.findMany({
-      where: { id_usuarios },
+      where: {
+        id_usuarios,
+        ...(filters?.nome && {
+          nome: { contains: filters.nome },
+        }),
+        ...(filters?.id_categorias && {
+          id_categorias: filters.id_categorias,
+        }),
+      },
       include: { categoria: true },
       orderBy: { criado_em: "desc" },
     });

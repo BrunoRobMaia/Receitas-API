@@ -11,6 +11,13 @@ export async function GetRecipeByUserController(app: FastifyInstance) {
       schema: {
         tags: ["Receitas"],
         summary: "Lista receitas do usuário logado",
+        querystring: {
+          type: "object",
+          properties: {
+            nome: { type: "string" },
+            id_categorias: { type: "number" },
+          },
+        },
         response: {
           200: {
             type: "array",
@@ -40,13 +47,20 @@ export async function GetRecipeByUserController(app: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const id_usuarios = Number(request.user.sub);
+      const { nome, id_categorias } = request.query as {
+        nome?: string;
+        id_categorias?: number;
+      };
 
       const receitaRepository = new MysqlReceitaRepository();
       const getAllRecipeByUserUseCase = new GetRecipeByUserUseCase(
         receitaRepository,
       );
 
-      const result = await getAllRecipeByUserUseCase.execute(id_usuarios);
+      const result = await getAllRecipeByUserUseCase.execute(id_usuarios, {
+        nome,
+        id_categorias,
+      });
 
       return reply.status(200).send(result);
     },
