@@ -1,5 +1,3 @@
-// src/services/Pdf/RecipePdfService.ts
-
 import PDFDocument from "pdfkit";
 
 interface GenerateRecipePdfRequest {
@@ -53,19 +51,16 @@ export class RecipePdfService {
       doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", reject);
 
-      const W = 595.28; // A4 width  (pt)
-      const H = 841.89; // A4 height (pt)
-      const PAD = 64; // inner horizontal padding (centraliza o conteúdo)
+      const W = 595.28; 
+      const H = 841.89; 
+      const PAD = 64;
 
-      /* ====================================================
-         1. FAIXA SUPERIOR — cor sólida com textura de linhas
-         ==================================================== */
       const HERO_H = 200;
 
-      // Fundo principal da hero
+     
       doc.rect(0, 0, W, HERO_H).fill(C.spice);
 
-      // Linhas decorativas diagonais sutis (textura)
+
       doc.save();
       doc.rect(0, 0, W, HERO_H).clip();
       doc.lineWidth(0.4).strokeColor("#00000015");
@@ -77,10 +72,9 @@ export class RecipePdfService {
       }
       doc.restore();
 
-      // Faixa dourada inferior da hero
+ 
       doc.rect(0, HERO_H - 6, W, 6).fill(C.gold);
 
-      // Categoria badge (topo)
       if (categoria?.nome) {
         const badgeLabel = categoria.nome.toUpperCase();
         const badgeX = PAD;
@@ -98,7 +92,7 @@ export class RecipePdfService {
           });
       }
 
-      // Título da receita
+  
       const nomeTxt = receita.nome || "Receita";
       doc
         .font("Helvetica-Bold")
@@ -110,9 +104,7 @@ export class RecipePdfService {
           lineGap: 4,
         });
 
-      /* ====================================================
-         2. CARTÕES DE INFORMAÇÃO (3 colunas)
-         ==================================================== */
+
       const INFO_Y = HERO_H + 28;
       const cardW = (W - PAD * 2 - 16) / 3;
       const cardH = 72;
@@ -142,53 +134,53 @@ export class RecipePdfService {
         const iconCx = cx + cardW / 2;
         const iconCy = INFO_Y + 18;
 
-        // Sombra simulada (offset rect escuro)
+
         doc.roundedRect(cx + 2, INFO_Y + 2, cardW, cardH, 8).fill("#00000012");
-        // Card
+ 
         doc
           .roundedRect(cx, INFO_Y, cardW, cardH, 8)
           .fillAndStroke(C.cardBg, C.cardBorder);
 
-        // Ícone desenhado com primitivas (sem Unicode)
+     
         doc.save();
         if (info.iconType === "portions") {
-          // Ícone de porções: garfo simplificado — 3 linhas verticais + cabo
+        
           doc.lineWidth(1.5).strokeColor(C.spice);
-          // 3 dentes do garfo
+          
           for (let d = -4; d <= 4; d += 4) {
             doc
               .moveTo(iconCx + d, iconCy - 7)
               .lineTo(iconCx + d, iconCy)
               .stroke();
           }
-          // Cabo
+         
           doc
             .moveTo(iconCx, iconCy)
             .lineTo(iconCx, iconCy + 7)
             .stroke();
-          // Barra transversal (base dos dentes)
+         
           doc
             .moveTo(iconCx - 4, iconCy)
             .lineTo(iconCx + 4, iconCy)
             .stroke();
         } else if (info.iconType === "clock") {
-          // Ícone de relógio: círculo + ponteiros
+          
           doc.lineWidth(1.5).strokeColor(C.spice);
           doc.circle(iconCx, iconCy, 8).stroke();
-          // Ponteiro das horas
+        
           doc
             .moveTo(iconCx, iconCy)
             .lineTo(iconCx, iconCy - 5)
             .stroke();
-          // Ponteiro dos minutos
+          
           doc
             .moveTo(iconCx, iconCy)
             .lineTo(iconCx + 4, iconCy - 2)
             .stroke();
         } else if (info.iconType === "category") {
-          // Ícone de categoria: tag/etiqueta
+         
           doc.lineWidth(1.5).strokeColor(C.spice);
-          // Losango pequeno
+         
           doc
             .moveTo(iconCx, iconCy - 8)
             .lineTo(iconCx + 6, iconCy)
@@ -196,12 +188,12 @@ export class RecipePdfService {
             .lineTo(iconCx - 6, iconCy)
             .closePath()
             .stroke();
-          // Pontinho central
+         
           doc.circle(iconCx, iconCy, 1.5).fill(C.spice);
         }
         doc.restore();
 
-        // Valor
+       
         doc
           .font("Helvetica-Bold")
           .fontSize(13)
@@ -212,7 +204,6 @@ export class RecipePdfService {
             lineBreak: false,
           });
 
-        // Label
         doc
           .font("Helvetica")
           .fontSize(8)
@@ -224,18 +215,15 @@ export class RecipePdfService {
           });
       });
 
-      /* ====================================================
-         3. CORPO — dois painéis lado a lado
-         ==================================================== */
+
       const BODY_Y = INFO_Y + cardH + 32;
       const colGap = 28;
       const CONTENT_W = W - PAD * 2;
-      const col1W = Math.floor(CONTENT_W * 0.38); // ingredientes ~38%
-      const col2W = CONTENT_W - col1W - colGap; // preparo ~62%
+      const col1W = Math.floor(CONTENT_W * 0.38); 
+      const col2W = CONTENT_W - col1W - colGap; 
       const col1X = PAD;
       const col2X = PAD + col1W + colGap;
 
-      // ── Coluna esquerda: INGREDIENTES ─────────────────────
       this.drawSectionHeader(
         doc,
         "Ingredientes",
@@ -254,12 +242,10 @@ export class RecipePdfService {
       doc.font("Helvetica").fontSize(11).fillColor(C.ink);
 
       ingredientes.forEach((item, idx) => {
-        // Alterna fundo zebra
         if (idx % 2 === 0) {
           doc.rect(col1X - 4, leftY - 3, col1W + 8, 22).fill("#F9F3EF");
         }
 
-        // Bullet redondo
         doc.circle(col1X + 6, leftY + 7, 3).fill(C.gold);
 
         doc
@@ -274,7 +260,6 @@ export class RecipePdfService {
         leftY += 22;
       });
 
-      // ── Coluna direita: MODO DE PREPARO ───────────────────
       this.drawSectionHeader(
         doc,
         "Modo de Preparo",
@@ -292,7 +277,6 @@ export class RecipePdfService {
       passos.forEach((passo, idx) => {
         const stepNum = String(idx + 1).padStart(2, "0");
 
-        // Número do passo em círculo
         doc.circle(col2X + 12, rightY + 9, 12).fill(C.spice);
         doc
           .font("Helvetica-Bold")
@@ -304,7 +288,6 @@ export class RecipePdfService {
             lineBreak: false,
           });
 
-        // Texto do passo
         const passH = doc.heightOfString(passo.trim(), { width: col2W - 36 });
         doc
           .font("Helvetica")
@@ -314,7 +297,6 @@ export class RecipePdfService {
 
         rightY += Math.max(passH + 14, 32);
 
-        // Linha separadora leve entre passos
         if (idx < passos.length - 1) {
           doc
             .moveTo(col2X + 30, rightY - 6)
@@ -325,9 +307,7 @@ export class RecipePdfService {
         }
       });
 
-      /* ====================================================
-         4. RODAPÉ
-         ==================================================== */
+    
       const footerY = H - 38;
 
       doc.rect(0, footerY - 10, W, 48).fill(C.spiceLight);
@@ -349,7 +329,6 @@ export class RecipePdfService {
           { width: W, align: "center" },
         );
 
-      // Ornamento do rodapé: losango dourado desenhado com linhas
       const ornX = W / 2;
       const ornY = footerY - 4;
       doc.save();
