@@ -73,12 +73,14 @@ Antes de subir os containers, configure as credenciais do banco no `docker-compo
 # Sobe os containers
 pnpm docker:up
 
-# Se a migration não foi aplicada automaticamente, entre no container e rode:
+# Entre no container
 pnpm docker:sh
-pnpm prisma:migrate
 
-# Popula as categorias iniciais
+# Popule as categorias com a seed
 pnpm prisma db seed
+
+# Se a migration não foi aplicada automaticamente, entre no container e rode:
+pnpm prisma:migrate
 ```
 
 Para rodar os testes dentro do container:

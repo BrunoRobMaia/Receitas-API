@@ -98,16 +98,15 @@ describe("Recipe Flow E2E", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({
         nome: "Bolo de Cenoura Premium",
-        ingredientes: "cenoura, farinha, ovos, chocolate", // Campo obrigatório
-        modo_preparo: "Misture tudo e asse por 40 minutos", // Campo obrigatório
-        tempo_preparo_minutos: 45, // Campo obrigatório
-        porcoes: 10, // Campo obrigatório
-        id_categorias: categoriaId, // Campo obrigatório
+        ingredientes: "cenoura, farinha, ovos, chocolate",
+        modo_preparo: "Misture tudo e asse por 40 minutos",
+        tempo_preparo_minutos: 45,
+        porcoes: 10,
+        id_categorias: categoriaId,
       });
 
     expect(editResponse.statusCode).toBe(200);
 
-    // Verificar se a edição foi aplicada
     const receitaAtualizada = await prisma.receita.findFirst({
       where: { id: receitaId },
     });
@@ -139,13 +138,12 @@ describe("Recipe Flow E2E", () => {
 
     expect(deleteResponse.statusCode).toBe(200);
 
-    // Verificar se foi realmente deletada
     const receitaDeletada = await prisma.receita.findFirst({
       where: { id: receitaId },
     });
     expect(receitaDeletada).toBeNull();
 
-    receitaId = 0; // Reseta o ID para não tentar deletar novamente no afterAll
+    receitaId = 0;
   });
 
   it("não deve permitir editar receita com dados incompletos", async () => {
