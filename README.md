@@ -67,7 +67,7 @@ cp .env.local .env
 
 ## 🐳 Opção 1 — Docker (Recomendado)
 
-Antes de subir os containers, configure as credenciais do banco no `docker-compose.yml` e no `.env` (veja [⚙️ Configuração](#️-configuração)).
+Antes de subir os containers, configure as credenciais do banco no `.env` (veja [⚙️ Configuração](#️-configuração)).
 
 ```bash
 # Sobe os containers
@@ -180,37 +180,3 @@ DATABASE_URL="mysql://seu_usuario:sua_senha@localhost:3306/receitas"
 ```
 
 ---
-
-### 2. Docker Compose (`docker-compose.yml`)
-
-Ao usar Docker, as credenciais do banco também precisam ser definidas diretamente no `docker-compose.yml`. Localize os campos marcados e substitua pelos seus valores antes de rodar `pnpm docker:up`:
-
-```yaml
-services:
-  api:
-    environment:
-      DATABASE_URL: mysql://<SEU_USUARIO>:<SUA_SENHA>@mysql:3306/receitas # ← edite aqui
-      DB_USER: <SEU_USUARIO> # ← edite aqui
-      DB_PASSWORD: <SUA_SENHA> # ← edite aqui
-      JWT_SECRET: ${JWT_SECRET} # lido automaticamente do .env
-
-  mysql:
-    environment:
-      MYSQL_ROOT_PASSWORD: <SUA_SENHA> # ← edite aqui (deve ser igual à acima)
-      MYSQL_DATABASE: receitas
-
-  mysql_test:
-    environment:
-      MYSQL_ROOT_PASSWORD: <SUA_SENHA> # ← edite aqui
-      MYSQL_DATABASE: receitas_test
-```
-
-> 💡 **Portas expostas pelos containers:**
->
-> | Container             | Porta interna | Porta no host |
-> | --------------------- | ------------- | ------------- |
-> | `receitas-api`        | `3000`        | `3000`        |
-> | `receitas-mysql`      | `3306`        | `3307`        |
-> | `receitas-mysql-test` | `3306`        | `3308`        |
->
-> O MySQL de produção fica na porta `3307` e o de testes na `3308` para evitar conflito com uma instalação local do MySQL.
