@@ -10,7 +10,7 @@ import { FastifyError } from "fastify";
 
 const app = fastify({
   logger: {
-    level: "info",
+    level: "warn",
     transport: {
       target: "pino-pretty",
       options: {

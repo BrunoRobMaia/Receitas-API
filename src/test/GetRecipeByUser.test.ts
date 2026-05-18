@@ -63,7 +63,10 @@ describe("GetRecipeByUserUseCase", () => {
     it("deve chamar findByUser com o id_usuarios correto", async () => {
       await getRecipeByUserUseCase.execute(10);
 
-      expect(mockReceitaRepository.findByUser).toHaveBeenCalledWith(10);
+      expect(mockReceitaRepository.findByUser).toHaveBeenCalledWith(
+        10,
+        undefined,
+      );
       expect(mockReceitaRepository.findByUser).toHaveBeenCalledTimes(1);
     });
 
@@ -103,8 +106,16 @@ describe("GetRecipeByUserUseCase", () => {
       await getRecipeByUserUseCase.execute(10);
       await getRecipeByUserUseCase.execute(20);
 
-      expect(mockReceitaRepository.findByUser).toHaveBeenNthCalledWith(1, 10);
-      expect(mockReceitaRepository.findByUser).toHaveBeenNthCalledWith(2, 20);
+      expect(mockReceitaRepository.findByUser).toHaveBeenNthCalledWith(
+        1,
+        10,
+        undefined,
+      );
+      expect(mockReceitaRepository.findByUser).toHaveBeenNthCalledWith(
+        2,
+        20,
+        undefined,
+      );
     });
   });
 
@@ -116,6 +127,20 @@ describe("GetRecipeByUserUseCase", () => {
 
       await expect(getRecipeByUserUseCase.execute(10)).rejects.toThrow(
         "Erro de conexão com banco",
+      );
+    });
+  });
+
+  describe("quando filtros são fornecidos", () => {
+    it("deve chamar findByUser com os filtros", async () => {
+      mockReceitaRepository.findByUser.mockResolvedValue([receitasFake[0]]);
+
+      const filters = { nome: "Bolo", id_categorias: 2 };
+      await getRecipeByUserUseCase.execute(10, filters);
+
+      expect(mockReceitaRepository.findByUser).toHaveBeenCalledWith(
+        10,
+        filters,
       );
     });
   });

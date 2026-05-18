@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EditRecipeUseCase } from "../useCases/EditRecipe/EditRecipeUseCase";
-import { NotFoundError } from "../utils/errors";
+import { NotFoundError, BadRequestError } from "../utils/errors";
 
 const mockReceitaRepository = {
   findById: vi.fn(),
@@ -37,13 +37,27 @@ describe("EditRecipeUseCase", () => {
         id: 1,
         id_usuarios: 10,
         nome: "Bolo de chocolate",
+        ingredientes: "Cenoura, farinha, ovos, açúcar",
+        modo_preparo: "Misture tudo e leve ao forno",
+        porcoes: 8,
+        tempo_preparo_minutos: 60,
+        id_categorias: 2,
       });
 
       expect(result).toEqual({ message: "Receita atualizada com sucesso!" });
     });
 
     it("deve chamar findById com id e id_usuarios corretos", async () => {
-      await editRecipeUseCase.execute({ id: 1, id_usuarios: 10 });
+      await editRecipeUseCase.execute({
+        id: 1,
+        id_usuarios: 10,
+        nome: "Bolo de chocolate",
+        ingredientes: "Cenoura, farinha, ovos, açúcar",
+        modo_preparo: "Misture tudo e leve ao forno",
+        porcoes: 8,
+        tempo_preparo_minutos: 60,
+        id_categorias: 2,
+      });
 
       expect(mockReceitaRepository.findById).toHaveBeenCalledWith(1, 10);
       expect(mockReceitaRepository.findById).toHaveBeenCalledTimes(1);
@@ -55,20 +69,33 @@ describe("EditRecipeUseCase", () => {
         id_usuarios: 10,
         nome: "Bolo de chocolate",
         porcoes: 10,
+        ingredientes: "Cenoura, farinha, ovos, açúcar",
+        modo_preparo: "Misture tudo e leve ao forno",
+        tempo_preparo_minutos: 60,
+        id_categorias: 2,
       });
 
       expect(mockReceitaRepository.update).toHaveBeenCalledWith(1, {
-        id_categorias: undefined,
+        id_categorias: 2,
         nome: "Bolo de chocolate",
-        tempo_preparo_minutos: undefined,
+        tempo_preparo_minutos: 60,
         porcoes: 10,
-        modo_preparo: undefined,
-        ingredientes: undefined,
+        modo_preparo: "Misture tudo e leve ao forno",
+        ingredientes: "Cenoura, farinha, ovos, açúcar",
       });
     });
 
     it("deve chamar update exatamente uma vez", async () => {
-      await editRecipeUseCase.execute({ id: 1, id_usuarios: 10 });
+      await editRecipeUseCase.execute({
+        id: 1,
+        id_usuarios: 10,
+        nome: "Bolo de chocolate",
+        ingredientes: "Cenoura, farinha, ovos, açúcar",
+        modo_preparo: "Misture tudo e leve ao forno",
+        porcoes: 8,
+        tempo_preparo_minutos: 60,
+        id_categorias: 2,
+      });
 
       expect(mockReceitaRepository.update).toHaveBeenCalledTimes(1);
     });
@@ -85,6 +112,11 @@ describe("EditRecipeUseCase", () => {
         id: 1,
         id_usuarios: 10,
         nome: "Novo nome",
+        ingredientes: receitaFake.ingredientes,
+        modo_preparo: receitaFake.modo_preparo,
+        porcoes: receitaFake.porcoes,
+        tempo_preparo_minutos: receitaFake.tempo_preparo_minutos,
+        id_categorias: receitaFake.id_categorias,
       });
 
       expect(mockReceitaRepository.update).toHaveBeenCalledWith(
@@ -98,6 +130,11 @@ describe("EditRecipeUseCase", () => {
         id: 1,
         id_usuarios: 10,
         ingredientes: "Novos ingredientes",
+        nome: receitaFake.nome,
+        modo_preparo: receitaFake.modo_preparo,
+        porcoes: receitaFake.porcoes,
+        tempo_preparo_minutos: receitaFake.tempo_preparo_minutos,
+        id_categorias: receitaFake.id_categorias,
       });
 
       expect(mockReceitaRepository.update).toHaveBeenCalledWith(
@@ -111,6 +148,11 @@ describe("EditRecipeUseCase", () => {
         id: 1,
         id_usuarios: 10,
         id_categorias: 5,
+        nome: receitaFake.nome,
+        ingredientes: receitaFake.ingredientes,
+        modo_preparo: receitaFake.modo_preparo,
+        porcoes: receitaFake.porcoes,
+        tempo_preparo_minutos: receitaFake.tempo_preparo_minutos,
       });
 
       expect(mockReceitaRepository.update).toHaveBeenCalledWith(
@@ -127,19 +169,46 @@ describe("EditRecipeUseCase", () => {
 
     it("deve lançar NotFoundError", async () => {
       await expect(
-        editRecipeUseCase.execute({ id: 99, id_usuarios: 10 }),
+        editRecipeUseCase.execute({
+          id: 99,
+          id_usuarios: 10,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow(NotFoundError);
     });
 
     it("deve lançar erro com a mensagem correta", async () => {
       await expect(
-        editRecipeUseCase.execute({ id: 99, id_usuarios: 10 }),
+        editRecipeUseCase.execute({
+          id: 99,
+          id_usuarios: 10,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow("Receita não encontrada.");
     });
 
     it("não deve chamar update se a receita não existe", async () => {
       await expect(
-        editRecipeUseCase.execute({ id: 99, id_usuarios: 10 }),
+        editRecipeUseCase.execute({
+          id: 99,
+          id_usuarios: 10,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow(NotFoundError);
 
       expect(mockReceitaRepository.update).not.toHaveBeenCalled();
@@ -153,16 +222,51 @@ describe("EditRecipeUseCase", () => {
 
     it("deve lançar NotFoundError", async () => {
       await expect(
-        editRecipeUseCase.execute({ id: 1, id_usuarios: 99 }),
+        editRecipeUseCase.execute({
+          id: 1,
+          id_usuarios: 99,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow(NotFoundError);
     });
 
     it("não deve chamar update se a receita não pertence ao usuário", async () => {
       await expect(
-        editRecipeUseCase.execute({ id: 1, id_usuarios: 99 }),
+        editRecipeUseCase.execute({
+          id: 1,
+          id_usuarios: 99,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow(NotFoundError);
 
       expect(mockReceitaRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("quando faltam dados obrigatórios", () => {
+    beforeEach(() => {
+      mockReceitaRepository.findById.mockResolvedValue(receitaFake);
+    });
+
+    it("deve lançar BadRequestError quando faltam campos obrigatórios", async () => {
+      await expect(
+        editRecipeUseCase.execute({
+          id: 1,
+          id_usuarios: 10,
+          nome: "Bolo de chocolate",
+          // faltando ingredientes, modo_preparo, etc.
+        } as any),
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -173,7 +277,16 @@ describe("EditRecipeUseCase", () => {
       );
 
       await expect(
-        editRecipeUseCase.execute({ id: 1, id_usuarios: 10 }),
+        editRecipeUseCase.execute({
+          id: 1,
+          id_usuarios: 10,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow("Erro de conexão com banco");
     });
 
@@ -184,7 +297,16 @@ describe("EditRecipeUseCase", () => {
       );
 
       await expect(
-        editRecipeUseCase.execute({ id: 1, id_usuarios: 10 }),
+        editRecipeUseCase.execute({
+          id: 1,
+          id_usuarios: 10,
+          nome: "teste",
+          ingredientes: "teste",
+          modo_preparo: "teste",
+          porcoes: 1,
+          tempo_preparo_minutos: 1,
+          id_categorias: 1,
+        }),
       ).rejects.toThrow("Falha ao atualizar");
     });
   });

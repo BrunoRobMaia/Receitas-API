@@ -42,7 +42,7 @@ describe("AuthUseCase", () => {
       vi.mocked(bcrypt.compareSync).mockReturnValue(true as never);
     });
 
-    it("deve retornar mensagem de sucesso e token", async () => {
+    it("deve retornar mensagem de sucesso, token e dados do usuário", async () => {
       const result = await authUseCase.execute({
         login: "joao@email.com",
         senha: "senha123",
@@ -51,6 +51,10 @@ describe("AuthUseCase", () => {
       expect(result).toEqual({
         message: "Login realizado com sucesso!",
         token: "mocked_jwt_token",
+        usuario: {
+          nome: "João Silva",
+          login: "joao@email.com",
+        },
       });
     });
 
