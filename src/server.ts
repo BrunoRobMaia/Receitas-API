@@ -10,7 +10,7 @@ import { FastifyError } from "fastify";
 
 const app = fastify({
   logger: {
-    level: "warn",
+    level: "info",
     transport: {
       target: "pino-pretty",
       options: {
@@ -23,7 +23,12 @@ const app = fastify({
   },
 });
 
-app.register(fastifyCors, { origin: true });
+app.register(fastifyCors, {
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+});
 
 app.register(fastifySwagger, {
   openapi: {

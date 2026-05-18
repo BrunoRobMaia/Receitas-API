@@ -19,7 +19,8 @@ export class CreateRecipeUseCase {
       !data.ingredientes ||
       !data.modo_preparo ||
       !data.porcoes ||
-      !data.tempo_preparo_minutos
+      !data.tempo_preparo_minutos ||
+      !data.id_categorias
     ) {
       throw new BadRequestError(
         "Dados da receita faltando, verifique novamente",
